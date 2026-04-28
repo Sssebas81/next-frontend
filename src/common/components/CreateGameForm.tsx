@@ -2,9 +2,11 @@
 
 import { CreateGameRequest, GameCategory, gameService } from "@/app/(dashboard)/feed/services/game.service";
 import { useRef } from "react";
+import { useRouter } from "next/navigation";
 
 export default function CreateGameForm() {
     const formRef = useRef<HTMLFormElement>(null);
+    const router = useRouter();
 
     const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -16,13 +18,15 @@ export default function CreateGameForm() {
             minPlayers: parseInt(formData.get("min_players") as string) || 2,
             maxPlayers  : parseInt(formData.get("max_players") as string) || 4,
             category: formData.get("category") as GameCategory || GameCategory.BOARD,
-            createdBy: 1, // TODO: Replace with actual user ID from auth context
+            createdBy: parseInt(formData.get("createdBy") as string) || 1, // use form value or fallback to 1
         };
 
         try {
             await gameService.createGame(gameData);
             alert("Game created successfully!");
             formRef.current?.reset();
+            router.push('/feed');
+            router.refresh();
         } catch (error) {
             alert("Error creating game");
             console.error(error);
