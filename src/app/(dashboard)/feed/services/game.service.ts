@@ -1,4 +1,5 @@
 import axiosClient from "@/lib/axios/client"
+import { jwtDecode } from "jwt-decode";
 
 
 
@@ -32,10 +33,9 @@ export type CreateGameRequest = {
     minPlayers: number,
     maxPlayers: number,
     category: GameCategory,
-    createdBy: number, // TODO: Replace with actual user ID from auth context
+    createdBy: number
 }
 
- 
 
 class GameService {
     async getGames() {
@@ -43,8 +43,12 @@ class GameService {
         return result.data
     }
 
-    async createGame(game: CreateGameRequest) {
-        const result = await axiosClient.post<GameResponse>("/games", game);
+    async createGame(payload: CreateGameRequest) {
+
+        const token = localStorage.getItem("token") || "";
+        const decoded = jwtDecode(token);
+        const createdBy = Number(decoded.sub); // Adjust based on your token structure
+        const result = await axiosClient.post<GameResponse>("/games", { ...payload, createdBy });
         return result.data
     }
 

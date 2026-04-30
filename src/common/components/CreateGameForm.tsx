@@ -18,8 +18,10 @@ export default function CreateGameForm() {
             minPlayers: parseInt(formData.get("min_players") as string) || 2,
             maxPlayers  : parseInt(formData.get("max_players") as string) || 4,
             category: formData.get("category") as GameCategory || GameCategory.BOARD,
-            createdBy: parseInt(formData.get("createdBy") as string) || 1, // use form value or fallback to 1
+            createdBy: 1, // This will be set in the service using the token
         };
+
+        console.info(localStorage.getItem("token"))
 
         try {
             await gameService.createGame(gameData);
@@ -111,16 +113,7 @@ export default function CreateGameForm() {
                             </select>
                         </div>
 
-                        <div>
-                            <label htmlFor="createdBy">Created By</label>
-                            <input
-                                id="createdBy"
-                                name="createdBy"
-                                type="number"
-                                defaultValue="1"
-                                className="input input-bordered w-full"
-                            />
-                        </div>
+                        
                         <button type="submit" className="btn btn-primary w-full">
                             Create Game
                         </button>

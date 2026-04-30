@@ -2,7 +2,6 @@
 
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
-import { loginService } from "./services/login.service";
 import loginAction from "./login.action";
 
 export default function Login() {
@@ -10,17 +9,26 @@ export default function Login() {
     const router = useRouter();
 
     const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        const formData = new FormData(formRef.current!)
-        console.info(formData.get("email"), formData.get("password"))
-        const result = await loginAction(
-            String(formData.get("email")),
-            String(formData.get("password"))
-        )
-            console.info(result.access_token)
-            router.push("/")
+        e.preventDefault();
+        const formData = new FormData(formRef.current!);
+        const email = String(formData.get("email"));
+        const password = String(formData.get("password"));
         
-    }
+        const result = await loginAction(email, password);
+        
+        if (result.success && result.access_token) {
+            //  Guardar token y email en localStorage
+            localStorage.setItem("token", result.access_token);
+            localStorage.setItem("userEmail", email);
+            
+            console.log("Email guardado:", localStorage.getItem("userEmail"));
+            
+            // Redirigir al feed
+            router.push("/feed");
+        } else {
+            alert("Error de login: " + (result.error || "Credenciales inválidas"));
+        }
+    };
 
     return (
         <main>
@@ -39,7 +47,8 @@ export default function Login() {
                                 id="email"
                                 name="email"
                                 placeholder="example@mail.com"
-                                type="email" required
+                                type="email" 
+                                required
                                 className="input input-bordered w-full"
                             />
                         </div>
@@ -61,5 +70,5 @@ export default function Login() {
                 </div>
             </div>
         </main>
-    )
+    );
 }
